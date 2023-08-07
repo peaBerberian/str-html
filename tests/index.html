@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="description" content="str-html testing page" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="connect-src 'self' ws: wss:"
+    />
+    <title>str-html testing page</title>
+    <style>
+      .test-ok .test-result {
+        color: green;
+      }
+      .test-ko .test-result {
+        color: red;
+      }
+    </style>
+  </head>
+  <body>
+    <script type="module" src="./cases/index.mjs" charset="utf-8"></script>
+  </body>
+</html>

@@ -1,0 +1,17 @@
+{
+  "name": "str-html",
+  "version": "0.1.0",
+  "description": "Very simple templating engine relying on JavaScript's tagged template literals.",
+  "type": "module",
+  "main": "main.mjs",
+  "scripts": {
+    "lint": "eslint main.mjs tests/**/*.mjs",
+    "test": "node ./tests/simple-test-server.mjs"
+  },
+  "author": "Paul Berberian",
+  "license": "WTFPL",
+  "devDependencies": {
+    "eslint": "^8.46.0",
+    "eslint-plugin-jsdoc": "^46.4.6"
+  }
+}

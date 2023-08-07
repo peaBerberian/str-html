@@ -1,0 +1,99 @@
+{
+  "env": {
+    "browser": true,
+    "es6": true
+  },
+  "parserOptions": {
+    "project": "tsconfig.json",
+    "sourceType": "module"
+  },
+  "plugins": ["eslint-plugin-jsdoc"],
+  "rules": {
+    "arrow-body-style": "off",
+    "arrow-parens": ["off", "always"],
+    "comma-dangle": [
+      "error",
+      {
+       "objects": "always-multiline",
+       "arrays": "always-multiline",
+       "imports": "always-multiline",
+       "exports": "always-multiline",
+       "functions": "never"
+      }
+    ],
+    "complexity": [
+      "off",
+      {
+        "max": 20
+      }
+    ],
+    "consistent-return": "error",
+    "constructor-super": "error",
+    "curly": "error",
+    "default-case": "off",
+    "eol-last": "error",
+    "eqeqeq": ["error", "smart"],
+    "guard-for-in": "warn",
+    "id-blacklist": "off",
+    "id-match": "off",
+    "jsdoc/check-alignment": "error",
+    "jsdoc/no-types": "off",
+    "linebreak-style": ["error", "unix"],
+    "max-classes-per-file": ["warn", 5],
+    "max-len": [
+      "warn",
+      {
+        "code": 90
+      }
+    ],
+    "max-lines": ["off", 300],
+    "new-parens": "error",
+    "newline-per-chained-call": "off",
+    "no-bitwise": "off",
+    "no-caller": "error",
+    // "no-console": "error",
+    "no-debugger": "error",
+    "no-duplicate-case": "error",
+    "no-duplicate-imports": "error",
+    "no-empty": "error",
+    "no-eval": "error",
+    "no-fallthrough": "error",
+    "no-invalid-this": "error",
+    "no-magic-numbers": "off",
+    "no-multiple-empty-lines": "error",
+    "no-new-wrappers": "error",
+    "no-param-reassign": "error",
+    "no-return-await": "error",
+    "no-sequences": "error",
+    "no-shadow": "off",
+    "no-sparse-arrays": "error",
+    "no-template-curly-in-string": "error",
+    "no-throw-literal": "error",
+    "no-trailing-spaces": "error",
+    "no-undef-init": "error",
+    "no-unsafe-finally": "error",
+    "no-unused-labels": "error",
+    "no-var": "error",
+    "no-void": "error",
+    "object-curly-spacing": ["error", "always"],
+    "object-shorthand": "error",
+    "one-var": ["error", "never"],
+    "prefer-const": "error",
+    "prefer-spread": "error",
+    "prefer-object-spread": "error",
+    "prefer-template": "off",
+    "quote-props": ["error", "as-needed"],
+    "radix": "error",
+    "space-in-parens": ["error", "never"],
+    "spaced-comment": [
+      "error",
+      "always",
+      {
+        "markers": ["/"]
+      }
+    ],
+    "use-isnan": "error",
+    "valid-typeof": "error",
+    "yoda": "error"
+  }
+}
