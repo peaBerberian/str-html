@@ -51,7 +51,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     },
   };
 
-  let httpPort = 8695;
+  let httpPort = 8697;
   let indexOfPort = argv.indexOf("-p");
   if (indexOfPort < 0) {
     indexOfPort = argv.indexOf("--port");
@@ -169,7 +169,7 @@ function displayHelp() {
     `Usage: node simple-static-server.mjs [options]
 Options:
   -h, --help                   Display this help
-  -p, --port <number>          Set a specific HTTP port for connections. 8695 by default.`
+  -p, --port <number>          Set a specific HTTP port for connections. 8697 by default.`
     /* eslint-enable indent */
   );
 }
