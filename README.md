@@ -1,13 +1,14 @@
 # str-html
 
-`str-html` is a very simple browser-side templating engine relying on
+`str-html` is a simple browser-side templating engine relying on
 JavaScript's [tagged template literals feature](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals#tagged_templates).
 
-With it you can simply create dynamic HTML elements in your code, for example
-by writing:
+With it you can create dynamic HTML elements in your code by just writing its
+HTML equivalent, while allowing the insertion of more complex values and inner
+elements:
 
 ```js
-const myElem = strHtml`<div class="my-class" attr2=${myDynamicAttributeValue}">
+const myElem = strHtml`<div class="my-class" attr2=${myAttributeValue}">
   ${someInnerHtmlElement}
   Some text
   <span class="some-other-element ${someOtherClassName}" />
@@ -16,13 +17,13 @@ const myElem = strHtml`<div class="my-class" attr2=${myDynamicAttributeValue}">
 document.body.appendChild(myElem);
 ```
 
-Dynamic template string expression's placements are properly checked by
-`str-html` and sanitized by relying on the browser's API, so security worries
-can be kept to a minimum - at least like with regular JSX and HTML API.
+THe template string expression's placements are properly checked by `str-html`
+and sanitized by relying on the browser's API, so security worries can be kept
+to a minimum - at least like with regular JSX and the JS HTML API.
 
 The goal of this library is to replace the need for a more complex UI solution
 like `React`/`vue.js` and so on, for simpler web projects where it would be
-overkill.
+overkill and prototypes where the library setup would be bothersome.
 Here, the dependency size, API, library magic, and specific behaviors are all
 kept to a minimum allowing you to just write your own UI in a readable manner
 while relying on the expected HTML behavior.
@@ -270,7 +271,7 @@ const innerButtonElt = myElementWithAButtonInside
 innerButtonElt.onClick = () => alert("Done!");
 ```
 
-## Why only allowing dynamic insertion in attribute values and as element content?
+## Why not allowing expressions everywhere?
 
 Technically, it wouldn't be hard to also allow it as element names and
 attribute names, or even as a collection of attribute names and values, but I
@@ -278,3 +279,13 @@ found that it complexified too much the API for something I don't really
 need.
 
 My opinion may change in the future if I need this.
+
+## Why not adding a simple notion of components?
+
+After some initial considerations, I think [HTML custom
+elements](https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements)
+already answer that need, so you might consider them.
+
+Though, `str-html` is no react, if you really need custom component, dynamic
+updates and complex state management, you may want to look-up for another more
+complete solution.
