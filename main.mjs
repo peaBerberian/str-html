@@ -1,4 +1,33 @@
 /**
+ * I wasn't sure initially if I should handle void elements or just enforce
+ * XHTML-like syntax for KISS-sake.
+ * But people might expect things like just:
+ * ```js
+ * strHtml`<div>Before break<br>After break</div>`
+ * // NOTE: if not handled, `br` would have to be self-closing, e.g. `<br/>`
+ * ```
+ * to work as expected (with a line break), so let's just be tolerant here.
+ *
+ * Even though, as we say in my country, this is the door open to all the
+ * windows (opening a pandora's box).
+ */
+const VOID_ELEMENTS = [
+  "area",
+  "base",
+  "br",
+  "col",
+  "embed",
+  "hr",
+  "img",
+  "input",
+  "link",
+  "meta",
+  "source",
+  "track",
+  "wbr",
+];
+
+/**
  * Construct an HTMLElement from a template litteral representing its HTML
  * format, where template literal expressions can be inserted in attribute
  * values and an element's content.
@@ -107,12 +136,16 @@ function parseNextElem(remainingStrings, baseOffset, remainingExprs) {
   }
   offset++;
 
+  if (VOID_ELEMENTS.includes(tagName)) {
+    // This may be weird for some, yet try doing the same with the HTML API.
+    // React's JSX seems to enforce tag closing though? I don't even know.
+    return { element, offset };
+  }
+
   // Browse content until closing tag
+  // There's some complexity added because void elements are a thing.
   let initOffset = offset;
-  while (
-    remainingStrings[0][offset] !== "<" ||
-    remainingStrings[0][offset + 1] !== "/"
-  ) {
+  while (true) {
     if (remainingStrings[0][offset] === undefined) {
       const remText = document.createTextNode(
         remainingStrings[0].substring(initOffset, offset)
@@ -136,50 +169,66 @@ function parseNextElem(remainingStrings, baseOffset, remainingExprs) {
         }
       }
     } else if (remainingStrings[0][offset] === "<") {
+      // New element or closing tag?
+
+      // First add all text that has been parsed until now
       const remText = document.createTextNode(
         remainingStrings[0].substring(initOffset, offset)
       );
       element.appendChild(remText);
-      const nextElemInfo = parseNextElem(
-        remainingStrings,
-        offset,
-        remainingExprs
-      );
-      offset = nextElemInfo.offset;
-      element.appendChild(nextElemInfo.element);
-      initOffset = offset;
-      offset = skipWhiteSpace(remainingStrings[0], nextElemInfo.offset);
+
+      if (remainingStrings[0][offset + 1] !== "/") {
+        // New element!
+        const nextElemInfo = parseNextElem(
+          remainingStrings,
+          offset,
+          remainingExprs
+        );
+        offset = nextElemInfo.offset;
+        element.appendChild(nextElemInfo.element);
+        initOffset = offset;
+        offset = skipWhiteSpace(remainingStrings[0], nextElemInfo.offset);
+      } else {
+        // Closing tag!
+
+        // Check whether this closing tag has the same name
+        let isEndOfCurrentElement = true;
+        const closingTagNameEndIdx = skipToElementNameDeclarationEnd(
+          remainingStrings[0],
+          offset + 2
+        );
+        const closingTagName = remainingStrings[0].substring(
+          offset + 2,
+          closingTagNameEndIdx
+        );
+        if (closingTagName !== tagName) {
+          // void elements have special treatments, as people may close them by
+          // mistake... Just ignore them when they're closed.
+          if (VOID_ELEMENTS.includes(closingTagName)) {
+            // Ignore those like the browser probably would (WWBD?)
+            isEndOfCurrentElement = false;
+          } else {
+            throw new SyntaxError(
+              "str-html: Closing tag does not " +
+                "correspond to last opened tag."
+            );
+          }
+        }
+        offset = skipWhiteSpace(remainingStrings[0], closingTagNameEndIdx);
+        if (remainingStrings[0][offset] !== ">") {
+          checkExprWrongPlace(remainingStrings, "in an element's closing tag");
+          throw new SyntaxError("str-html: Malformed closing tag.");
+        }
+        offset++;
+        if (isEndOfCurrentElement) {
+          return { element, offset };
+        }
+        initOffset = offset;
+      }
     } else {
       offset++;
     }
   }
-
-  const remText = document.createTextNode(
-    remainingStrings[0].substring(initOffset, offset)
-  );
-  element.appendChild(remText);
-
-  // We should be at the end tag now, check that this is has the same name
-  const closingTagNameEndIdx = skipToElementNameDeclarationEnd(
-    remainingStrings[0],
-    offset + 2
-  );
-  if (
-    remainingStrings[0].substring(offset + 2, closingTagNameEndIdx) !== tagName
-  ) {
-    checkExprWrongPlace(remainingStrings, "in an element's closing tag");
-    throw new SyntaxError(
-      "str-html: Closing tag does not " + "correspond to last opened tag."
-    );
-  }
-  offset = skipWhiteSpace(remainingStrings[0], closingTagNameEndIdx);
-  if (remainingStrings[0][offset] !== ">") {
-    checkExprWrongPlace(remainingStrings, "in an element's closing tag");
-    throw new SyntaxError("str-html: Malformed closing tag.");
-  }
-  offset++;
-
-  return { element, offset };
 }
 
 /**

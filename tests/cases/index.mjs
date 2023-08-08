@@ -130,6 +130,35 @@ addTest("should allow complex content", () => {
   </div>`);
 });
 
+addTest("should allow unclosed void elements", () => {
+  const div1 = strHtml`     <div attr="val ${"val 2"} val3" >
+    <area />
+    <div  bip="bop ${"bop 2"} bop3" />
+    <input>
+    ${strHtml`<blap  boom="dwq ${"dwq 2"} dwq3" >
+        content <br> ${"other content"}</br> ${strHtml`<div/>`} 45 </blap>`}
+
+    <span  bip="bop ${"bop 2"} bop3">
+      ${strHtml`<blap  boom="dwq ${["dwq 2", 555, true]} dwq3" >
+          ${strHtml`<pre>${["content", strHtml`<div/>`]}</pre>`}</blap>`}
+    </span>
+  </div>`;
+  assertEqual(
+    div1.outerHTML,
+    `<div attr="val val 2 val3">
+    <area>
+    <div bip="bop bop 2 bop3"></div>
+    <input>
+    <blap boom="dwq dwq 2 dwq3">
+        content <br> other content <div></div> 45 </blap>
+
+    <span bip="bop bop 2 bop3">
+      <blap boom="dwq dwq 2555true dwq3">
+          <pre>content<div></div></pre></blap>
+    </span>
+  </div>`);
+});
+
 addTest("should (silently) authorize forgetting to close the parent element", () => {
   const div1 = strHtml`<div>`;
   assertEqual(div1.outerHTML, "<div></div>");
