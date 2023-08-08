@@ -4,6 +4,7 @@
   "description": "Very simple templating engine relying on JavaScript's tagged template literals.",
   "type": "module",
   "main": "main.mjs",
+  "types": "main.d.ts",
   "scripts": {
     "lint": "eslint main.mjs tests/**/*.mjs",
     "test": "node ./tests/simple-test-server.mjs"
