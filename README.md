@@ -1,7 +1,7 @@
 # str-html
 
-`str-html` is a very simple templating engine relying on JavaScript's [tagged
-template literals feature](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals#tagged_templates).
+`str-html` is a very simple browser-side templating engine relying on
+JavaScript's [tagged template literals feature](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals#tagged_templates).
 
 With it you can simply create dynamic HTML elements in your code, for example
 by writing:
@@ -16,9 +16,9 @@ const myElem = strHtml`<div class="my-class" attr2=${myDynamicAttributeValue}">
 document.body.appendChild(myElem);
 ```
 
-_NOTE: Dynamic template string expression's placements are properly checked by
+Dynamic template string expression's placements are properly checked by
 `str-html` and sanitized by relying on the browser's API, so security worries
-can be kept to a minimum - at least like with regular JSX and HTML API._
+can be kept to a minimum - at least like with regular JSX and HTML API.
 
 The goal of this library is to replace the need for a more complex UI solution
 like `React`/`vue.js` and so on, for simpler web projects where it would be
@@ -79,7 +79,7 @@ const anotherElement = strHtml`<div class="some-outer-element">
 // You can insert an element in another element like this
 const parentElt1 = strHtml`<div class="parent-element">${myElement}</div>`;
 
-// You can also insert multiple ones by using an array of HTMLElements
+// You can also concatenate multiple values by relying on an array
 const parentElt2 = strHtml`<div class="parent-element">
   ${[myElement, anotherElement]}
   You can even add some text before of after or in the array, as you wish
@@ -146,6 +146,35 @@ litterals:
 
 That's it you understand the totality of this library!
 
+## About void elements
+
+Some elements, like `<br>` or `<input>` cannot have an inner content as per the
+HTML spec and do not need/have a closing tag, those are called
+["void elements"](https://html.spec.whatwg.org/#void-elements) in HTML linguo.
+
+In `str-html` they have been handled as is the more logical for library users:
+
+-   The HTML-compliant way of declaring one without closing it is supported,
+    you can picture it as if a closing tag was automatically added just after
+    its opening tag.
+
+-   If you put content inside a void element, it will be actually added to its
+    parent element, exactly like if you did the same thing on a browser with
+    the `innerHTML` API (at least on browsers I checked).
+
+-   Closed void elements are just skipped
+
+This should lead to a sensible way of handling them regardless of your
+preferences. For example, with `<br>`, any of those will be parsed the same
+way:
+
+```js
+strHtml`<p>first line<br>second line</p>`; // HTML way
+strHtml`<p>first line<br/>second line</p>`; // Self-closing way
+strHtml`<p>first line<br></br>second line</p>`; // Second closing tag
+strHtml`<p>first line<br>second line</br></p>`; // User may have not understood `<br>`
+```
+
 ## Is it fast?
 
 I have no idea as I wasn't bothered yet to bench it.
@@ -181,7 +210,6 @@ wrapperElt.appendChild(parentElt);
 
 Again, maybe it turns out that `str-html` is already very fast for your need,
 it is for mine at least.
-
 
 ## How do I declare a data binding?
 
