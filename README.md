@@ -89,7 +89,7 @@ const parentElt2 = strHtml`<div class="parent-element">
 // That's it, you know how to use it now!
 ```
 
-## How it works
+## API
 
 The ultimate goal of this library is to be very simple to understand.
 No magic (well, tagged template literals are kind of magic, but you get my
