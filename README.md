@@ -11,13 +11,13 @@ elements:
 const myElem = strHtml`<div class="my-class" attr2=${myAttributeValue}">
   ${someInnerHtmlElement}
   Some text
-  <span class="some-other-element ${someOtherClassName}" />
+  <span class="some-other-element ${someClassName}">Some ${"other"} text</span>
 </div>`;
 
 document.body.appendChild(myElem);
 ```
 
-THe template string expression's placements are properly checked by `str-html`
+The template string expression's placements are properly checked by `str-html`
 and sanitized by relying on the browser's API, so security worries can be kept
 to a minimum - at least like with regular JSX and the JS HTML API.
 
