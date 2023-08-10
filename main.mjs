@@ -130,7 +130,7 @@ function parseNextElem(remainingStrings, baseOffset, remainingExprs) {
   }
 
   // After attributes and whitespace, we should encounter the `>` of the start tag.
-  if (remainingStrings[0][offset] !== ">") {
+  if (remainingStrings.length === 0 || remainingStrings[0][offset] !== ">") {
     checkExprWrongPlace(remainingStrings, "in the tag's attribute names");
     throw new SyntaxError("str-html: Unexpected end of opening tag.");
   }
@@ -187,6 +187,11 @@ function parseNextElem(remainingStrings, baseOffset, remainingExprs) {
         offset = nextElemInfo.offset;
         element.appendChild(nextElemInfo.element);
         initOffset = offset;
+        if (remainingStrings.length === 0) {
+          // User forgot to close that last element.
+          // Should we throw or be nice? I want to throw because that's probably a mistake
+          throw new SyntaxError("str-html: Unexpected end of string.");
+        }
         offset = skipWhiteSpace(remainingStrings[0], nextElemInfo.offset);
       } else {
         // Closing tag!
