@@ -1,1 +1,3 @@
 /node_modules
+/tests/performance/main.last.mjs
+/tests/performance/main.current.mjs
