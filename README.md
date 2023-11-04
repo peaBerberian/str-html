@@ -1,38 +1,56 @@
 # str-html
 
-`str-html` is a simple browser-side templating engine relying on
+`str-html` is a fast and lightweight JavaScript UI library relying on
 JavaScript's [tagged template literals feature](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals#tagged_templates).
 
-With it you can create dynamic HTML elements in your code by just writing its
-HTML equivalent, while allowing the insertion of more complex values and inner
-elements:
-
+It basically allows writing HTML in JS (like JSX) without the need of a
+separate transpilation step (unlike JSX) nor of an heavy library, everything
+being handled natively by JavaScript's tagged template features:
 ```js
-const myElem = strHtml`<div class="my-class" attr2=${myAttributeValue}">
+import strHtml from "str-html";
+
+// Create a simple HTMLElement by just writing its HTML content
+const someInnerHtmlElement = strHtml`<p>Click Me!</p>`;
+
+// `someInnerHtmlElement` is now a regular `HTMLElement` object:
+someInnerHtmlElement.onclick = () => {
+  // Dynamically appending new elements
+  document.body.appendChild(strHtml`<p>Clicked!</p>`);
+};
+
+// We can also insert template expressions in that string
+const myAttributeValue = "foo";
+const someClassName = "some-class";
+const someTextToEscape = "<script>alert();</script>"
+const myElem = strHtml`<div class="my-class" attr2=${myAttributeValue}>
   ${someInnerHtmlElement}
-  Some text
-  <span class="some-other-element ${someClassName}">Some ${"other"} text</span>
+  Some example text.
+  <div>Inserted expressions are escaped: ${someTextToEscape}</div>
+  <span class="some-other-element ${someClassName}">Even ${"more"} text.</span>
 </div>`;
 
 document.body.appendChild(myElem);
+// HTML body content now:
+// <div class="my-class" attr2="foo">
+//   <p>Click Me!</p>
+//   Some example text.
+//   <div>Inserted expressions are escaped: &lt;script&gt;alert();&lt;/script&gt;</div>
+//   <span class="some-other-element some-class">Even more text.</span>
+// </div>
 ```
+_[Run that example in your browser](https://codesandbox.io/s/hungry-worker-ljm2vz?file=/src/index.mjs)_
 
-The template string expression's placements are properly checked by `str-html`
-and sanitized by relying on the browser's API, so security worries can be kept
-to a minimum - at least like with regular JSX and the JS HTML API.
+The goal of this library is to be a much lighter weight and faster solution for
+projects where you wish for an HTML/JSX-like syntax without the need of a big
+UI framework. With `str-html`, the dependency size, API, heavy library logic and
+complex library behaviors are all kept to a minimum allowing you to just write
+your own UI in a readable manner while relying on known native HTML concepts.
 
-The goal of this library is to replace the need for a more complex UI solution
-like `React`/`vue.js` and so on, for simpler web projects where it would be
-overkill and prototypes where the library setup would be bothersome.
-Here, the dependency size, API, library magic, and specific behaviors are all
-kept to a minimum allowing you to just write your own UI in a readable manner
-while relying on the expected HTML behavior.
+Note that the template string expression's placements are properly checked by
+`str-html` and sanitized by relying on the browser's API, so security worries
+can be kept to a minimum - at least like with regular JSX and the JS HTML API.
 
-There's probably other similar solutions elsewhere with the huge amounts of
-UI libraries and templating engines on `npm`, but I didn't find the right
-balance between simplicity and usefulness for my own projects, so here we are.
-
-## Quick yet complete example
+## Quick examples
 
 You can install `str-html` from npm/yarn:
 
@@ -40,30 +58,35 @@ You can install `str-html` from npm/yarn:
 npm install str-html
 ```
 
-Or just copy-paste the `./main.mjs` file in this repository's root
-(I don't care).
+Or just copy-paste the `./main.mjs` file in this repository's root in your
+project.
 
-And then write something like:
-
+You can then just write HTML directly as a template string, prefixing it with
+`str-html`'s main export:
 ```js
-// script.js
-
 import strHtml from "str-html";
 
 // Simply declare an element by writing its HTML.
-const myElement = strHtml`<div class="some-class">Some initial text</div>`;
+const myElement = strHtml`<div class="my-div"><p>Some paragraph</p></div>`;
 
-// `myElement` is now just the corresponding HTMLElement.
-// Use it as you wish.
-//
-// For example, you can register an onclick handler:
+// `myElement` is now a regular `HTMLElement`. Let's add it to the DOM.
+document.body.appendChild(myElement);
+
+// You can do any usual task with `HTMLElement`s, let's register an onclick
+// handler:
 myElement.onclick = function (evt) {
     // do things with it
     console.log("Received click event", evt);
 };
 
-// Or dynamically update its text content like usual
+// We can also dynamically update its text content like usual
 myElement.textContent = "Some other text";
+```
+
+`str-html` also allows to insert attributes and the inner content of elements
+through expressions:
+```js
+import strHtml from "str-html";
 
 // Attribute values and element inner contents can be declared as
 // "${expression}" in which case they will be properly sanitized.
@@ -78,6 +101,7 @@ const anotherElement = strHtml`<div class="some-outer-element">
 </div>`;
 
 // You can insert an element in another element like this
+const myElement = strHtml`<div class="some-class">Some initial text</div>`;
 const parentElt1 = strHtml`<div class="parent-element">${myElement}</div>`;
 
 // You can also concatenate multiple values by relying on an array
@@ -98,54 +122,54 @@ point), and all HTML rules applies for the rest of your application.
 The only rules to understand with this library are that in `str-html` template
 litterals:
 
-1. At least for now, only HTML elements and text (including "character
-   references" - like `"&amp;"`) are authorized - which mainly means no
-   CDATA section, no HTML comments and no DOCTYPE.
+1. At least for now, CDATA sections, HTML comments and DOCTYPE HTML features are
+   not supported.
    If any of the unauthorized elements is detected, `str-html` will throw.
 
-    If you don't know what those are, you probably don't need them though.
+   If you don't know what some or all of those are, you probably don't use nor
+   need them.
 
 2. An `${expression}`:
 
-    1. Can only be set as an attribute value and inside an element's content.
+   1. Can only be set as an attribute value and inside an element's content.
 
-        This is enforced by `str-html`, which will throw if an expression is
-        found elsewhere.
+      This is enforced by `str-html`, which will throw if an expression is
+      found elsewhere.
 
-        Note that you can put in both of those places multiple ${expression}
-        and strings concatenated and interpolated, in which case it will
-        behave like you may suspect: concatenated and interpolated.
+      Note that you can put in both of those places multiple ${expression}
+      and strings concatenated and interpolated, in which case it will
+      behave like you may suspect: concatenated and interpolated.
 
-        Example:
+      Example:
 
-        ```js
-        console.log(
-            strHtml`<div class="${"class1 "}class2 class3${" class4"}" />`
-                .outerHTML
-        );
-        // Outputs: "<div class="class1 class2 class3 class4"></div>"
-        ```
+      ```js
+      console.log(
+          strHtml`<div class="${"class1 "}class2 class3${" class4"}" />`
+              .outerHTML
+      );
+      // Outputs: "<div class="class1 class2 class3 class4"></div>"
+      ```
 
-    2. Will behave differently depending on the type found in the expression:
+   2. Will behave differently depending on the type found in the expression:
 
-        - `null` and `undefined` will be translated to an empty string.
+      - `null` and `undefined` will be translated to an empty string.
 
-        - `HTMLElement`, will be appended as a child element when set as another
-          element's inner content.
+      - `HTMLElement`, will be appended as a child element when set as another
+        element's inner content.
 
-            `str-html` will throw if an `HTMLElement` is set as an attribute's
-            value (why would you do that?).
+      - `str-html` will throw if an `HTMLElement` is set as an attribute's
+        value (why would you do that?).
 
-        - any other values but an array (see below) will have its `toString`
-          method called on it and its result will be first sanitized then
-          used.
+      - any other values but an array (see below) will have its `toString`
+        method called on it and its result will be first sanitized then
+        used.
 
-        - An array.
-          Same rules than for the corresponding single values, but repeated
-          for each element of that array. From the first to the last item of
-          that array. The obtained results are then concatenated.
+      - An array.
+        Same rules than for the corresponding single values, but repeated
+        for each element of that array. From the first to the last item of
+        that array. The obtained results are then concatenated.
 
-That's it you understand the totality of this library!
+That's it!
 
 ## About void elements
 
@@ -178,14 +202,15 @@ strHtml`<p>first line<br>second line</br></p>`; // User may have not understood 
 
 ## Is it fast?
 
-I have no idea as I wasn't bothered yet to bench it.
+It should be pretty fast and faster than most heavier UI libraries.
+However I have no idea how much as I wasn't bothered yet to bench it.
 
-It does has some overhead over native browser API due to the string parsing
+It does has some overhead over native browser APIs due to the string parsing
 involved.
 For places where you really need the toppest performances, a huge advantage of
 `str-html` is that, because it just outputs an `HTMLElement` and can read them,
 it is possible to combine it with the fastest framework available: native
-browser API!
+browser APIs!
 
 For example, you can do:
 
@@ -286,6 +311,6 @@ After some initial considerations, I think [HTML custom
 elements](https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements)
 already answer that need, so you might consider them.
 
-Though, `str-html` is no react, if you really need custom component, dynamic
+Though, `str-html` is not React, if you really need custom component, dynamic
 updates and complex state management, you may want to look-up for another more
 complete solution.
