@@ -176,4 +176,25 @@ addTest("should (silently) authorize forgetting to close the parent element", ()
   assertEqual(div5.outerHTML, "<div><span>   </span>5555 <div></div></div>");
 });
 
+addTest("should make the example code work as advertised", () => {
+  const someInnerHtmlElement = strHtml`<p>Click Me!</p>`;
+  const myAttributeValue = "foo";
+  const someClassName = "some-class";
+  const someTextToEscape = "<script>alert();</script>"
+  const myElem = strHtml`<div class="my-class" attr2=${myAttributeValue}>
+  ${someInnerHtmlElement}
+  Some example text.
+  <div>Inserted expressions are escaped: ${someTextToEscape}</div>
+  <span class="some-other-element ${someClassName}">Even ${"more"} text.</span>
+</div>`;
+  assertEqual(
+    myElem.outerHTML,
+`<div class="my-class" attr2="foo">
+  <p>Click Me!</p>
+  Some example text.
+  <div>Inserted expressions are escaped: &lt;script&gt;alert();&lt;/script&gt;</div>
+  <span class="some-other-element some-class">Even more text.</span>
+</div>`);
+});
+
 runTests();
